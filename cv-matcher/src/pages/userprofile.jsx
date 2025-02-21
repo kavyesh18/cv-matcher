@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
@@ -17,7 +18,19 @@ const UserProfilePage = () => {
     const file = event.target.files[0];
     if (file) {
       try {
-        await updateProfilePicture(file);
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await axios.post(
+          'https://cv-matcher-backend-p9yp.onrender.com/api/users/profile/picture',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${currentUser.token}`
+            }
+          }
+        );
+        setProfileData(prev => ({ ...prev, profilePicture: response.data.url }));
       } catch (error) {
         console.error('Error uploading profile picture:', error);
       }
@@ -26,10 +39,13 @@ const UserProfilePage = () => {
 
   const handleSaveChanges = async () => {
     try {
-      await updateUserProfile({
-        username: profileData.name,
-        email: profileData.email
-      });
+      const response = await axios.put(
+        'https://cv-matcher-backend-p9yp.onrender.com/api/users/profile',
+        { username: profileData.name, email: profileData.email },
+        {
+          headers: { Authorization: `Bearer ${currentUser.token}` }
+        }
+      );
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating profile:', error);

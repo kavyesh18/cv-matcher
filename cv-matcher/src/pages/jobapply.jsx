@@ -43,7 +43,7 @@ const JobApplyPage = () => {
 
         console.log('Fetching jobs...');
         const response = await axios.get(
-          'http://localhost:5000/api/jobs/relevant',
+          'https://cv-matcher-backend-p9yp.onrender.com/api/jobs/relevant',
           {
             headers: { 
               'Authorization': `Bearer ${token}`

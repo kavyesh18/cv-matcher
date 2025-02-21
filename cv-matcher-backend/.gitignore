@@ -1,5 +1,2 @@
 # Ignore environment files
 cv-matcher-backend/.env
-node_modules/
-dist/
-build/

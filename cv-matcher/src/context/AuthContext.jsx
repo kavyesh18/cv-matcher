@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://cv-matcher-backend-p9yp.onrender.com/api';
 const AuthContext = createContext();
 
 export const useAuth = () => {
