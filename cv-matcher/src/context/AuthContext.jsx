@@ -2,8 +2,8 @@ import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import config from '../config/config';
 
-const API_URL = 'https://cv-matcher-backend-p9yp.onrender.com/api';
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -16,31 +16,38 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Configure axios defaults
-  axios.defaults.baseURL = API_URL;
+  axios.defaults.baseURL = config.API_URL;
   if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
   const signup = async (username, email, password) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/register`, {
+      console.log('Attempting signup with:', { username, email });
+      const response = await axios.post(`${config.API_URL}/api/auth/register`, {
         username,
         email,
         password
       });
 
-      toast.success('Account created successfully!');
-      navigate('/login');
-      return true;
+      console.log('Signup response:', response.data);
+
+      if (response.data) {
+        toast.success('Account created successfully!');
+        navigate('/login');
+        return true;
+      }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create account');
+      console.error('Signup error:', error.response?.data || error);
+      const errorMessage = error.response?.data?.message || 'Failed to create account';
+      toast.error(errorMessage);
       return false;
     }
   };
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
+      const response = await axios.post(`${config.API_URL}/api/auth/login`, {
         email,
         password
       });

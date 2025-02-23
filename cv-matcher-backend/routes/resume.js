@@ -182,17 +182,22 @@ router.post('/upload', auth, (req, res) => {
 
       console.log('File uploaded successfully:', req.file.path);
 
-      // Find user
-      const user = await User.findById(req.userId);
+      // Find user with timeout
+      const user = await User.findById(req.userId).maxTimeMS(20000); // Set 20s timeout
       if (!user) {
         fs.unlink(req.file.path, () => {});
         return res.status(404).json({ message: 'User not found' });
       }
 
       try {
-        // Process resume
+        // Process resume with timeout
         console.log('Starting resume analysis...');
-        const resumeAnalysis = await extractResumeInfo(req.file.path);
+        const resumeAnalysis = await Promise.race([
+          extractResumeInfo(req.file.path),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Resume analysis timed out')), 30000)
+          )
+        ]);
         
         if (!resumeAnalysis) {
           throw new Error('Failed to analyze resume');
@@ -205,7 +210,7 @@ router.post('/upload', auth, (req, res) => {
         user.jobPreferences = resumeAnalysis.jobPreferences || '';
         user.resumeScore = resumeAnalysis.resumeScore || 0;
 
-        await user.save();
+        await user.save({ timeout: 20000 }); // Set 20s timeout for save operation
         console.log('User updated with resume data');
 
         // Send response
@@ -229,7 +234,8 @@ router.post('/upload', auth, (req, res) => {
         fs.unlink(req.file.path, () => {});
       }
       return res.status(500).json({ 
-        message: `Server error: ${error.message}` 
+        message: `Server error: ${error.message}`,
+        details: error.stack
       });
     }
   });

@@ -18,7 +18,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -43,9 +43,17 @@ try {
 }
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 15000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 15000
+}).then(() => {
+  console.log('Connected to MongoDB');
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
+});
 
 // Add this before your routes
 app.get('/api/health', (req, res) => {

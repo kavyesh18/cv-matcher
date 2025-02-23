@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import config from '../config/config';
 
 const JobApplyPage = () => {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ const JobApplyPage = () => {
 
         console.log('Fetching jobs...');
         const response = await axios.get(
-          'https://cv-matcher-backend-p9yp.onrender.com/api/jobs/relevant',
+          `${config.API_URL}/api/jobs/relevant`,
           {
             headers: { 
               'Authorization': `Bearer ${token}`

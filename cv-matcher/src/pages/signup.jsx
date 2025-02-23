@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const validationSchema = Yup.object().shape({
   username: Yup.string()
@@ -22,19 +23,46 @@ const validationSchema = Yup.object().shape({
 const SignupPage = () => {
   const { signup } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    setIsSubmitting(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    if (!username || !email || !password || !confirmPassword) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+
     try {
-      const success = await signup(values.username, values.email, values.password);
+      setIsLoading(true);
+      const success = await signup(username, email, password);
       if (success) {
-        resetForm();
+        // Clear form
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
       }
     } catch (error) {
       console.error('Signup error:', error);
+      toast.error('Failed to create account. Please try again.');
     } finally {
-      setIsSubmitting(false);
-      setSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -74,6 +102,8 @@ const SignupPage = () => {
                       className={`mt-1 block w-full px-3 py-2 border ${
                         errors.username && touched.username ? 'border-red-500' : 'border-gray-300'
                       } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                     />
                     {errors.username && touched.username && (
                       <p className="mt-1 text-sm text-red-600">{errors.username}</p>
@@ -91,6 +121,8 @@ const SignupPage = () => {
                       className={`mt-1 block w-full px-3 py-2 border ${
                         errors.email && touched.email ? 'border-red-500' : 'border-gray-300'
                       } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                     {errors.email && touched.email && (
                       <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -108,6 +140,8 @@ const SignupPage = () => {
                       className={`mt-1 block w-full px-3 py-2 border ${
                         errors.password && touched.password ? 'border-red-500' : 'border-gray-300'
                       } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                     {errors.password && touched.password && (
                       <p className="mt-1 text-sm text-red-600">{errors.password}</p>
@@ -125,6 +159,8 @@ const SignupPage = () => {
                       className={`mt-1 block w-full px-3 py-2 border ${
                         errors.confirmPassword && touched.confirmPassword ? 'border-red-500' : 'border-gray-300'
                       } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                     {errors.confirmPassword && touched.confirmPassword && (
                       <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
@@ -135,12 +171,12 @@ const SignupPage = () => {
                 <div>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isLoading}
                     className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                      isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
-                    {isSubmitting ? 'Signing up...' : 'Sign up'}
+                    {isLoading ? 'Signing up...' : 'Sign up'}
                   </button>
                 </div>
               </Form>

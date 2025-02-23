@@ -32,7 +32,7 @@ const DashboardPage = () => {
         return;
       }
 
-      const baseURL = 'https://cv-matcher-backend-p9yp.onrender.com';
+      const baseURL = 'http://localhost:5000';
       console.log('Attempting to connect to:', baseURL);
 
       // Test server connection first
