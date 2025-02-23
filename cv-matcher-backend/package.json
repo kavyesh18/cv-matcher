@@ -4,7 +4,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "npx nodemon server.js"
+    "dev": "npx nodemon server.js",
+    "vercel-build": "echo 'Build script executed'"
   },
   "dependencies": {
     "@google/generative-ai": "^0.22.0",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "vercel": "^32.7.2"
   }
 }
